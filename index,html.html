@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GG Model 4.0 - Fastai (Anniversary 2 Tahun)</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap" rel="stylesheet">
+  <style>
+    /* Gunakan font Roboto */
+    body {
+      font-family: 'Roboto', sans-serif;
+    }
+    :root {
+      --background-color: #f0f0f0;
+      --header-bg: #333;
+      --header-color: #fff;
+      --chat-bg: #fff;
+      --chat-color: #000;
+      --button-bg: #333;
+      --button-hover: #555;
+      --user-msg-color: #007bff;
+      --ai-msg-color: #28a745;
+      --timestamp-color: #999;
+      --footer-color: #555;
+      --highlight-color: #ffff99;
+    }
+    /* Tema Ocean */
+    .theme-ocean {
+      --background-color: #e0f7fa;
+      --header-bg: #006064;
+      --header-color: #e0f7fa;
+      --chat-bg: #ffffff;
+      --chat-color: #006064;
+      --button-bg: #006064;
+      --button-hover: #004d40;
+      --user-msg-color: #00838f;
+      --ai-msg-color: #004d40;
+      --timestamp-color: #00796b;
+      --footer-color: #006064;
+      --highlight-color: #b2ebf2;
+    }
+    /* Tema Forest */
+    .theme-forest {
+      --background-color: #e8f5e9;
+      --header-bg: #2e7d32;
+      --header-color: #e8f5e9;
+      --chat-bg: #ffffff;
+      --chat-color: #2e7d32;
+      --button-bg: #2e7d32;
+      --button-hover: #1b5e20;
+      --user-msg-color: #66bb6a;
+      --ai-msg-color: #1b5e20;
+      --timestamp-color: #388e3c;
+      --footer-color: #2e7d32;
+      --highlight-color: #c8e6c9;
+    }
+    /* Tema Sunset */
+    .theme-sunset {
+      --background-color: #fff3e0;
+      --header-bg: #e64a19;
+      --header-color: #fff3e0;
+      --chat-bg: #ffffff;
+      --chat-color: #e64a19;
+      --button-bg: #e64a19;
+      --button-hover: #bf360c;
+      --user-msg-color: #ff7043;
+      --ai-msg-color: #bf360c;
+      --timestamp-color: #d84315;
+      --footer-color: #e64a19;
+      --highlight-color: #ffe0b2;
+    }
+    /* Mode Dark akan override variabel default */
+    .dark-mode {
+      --background-color: #1e1e1e;
+      --header-bg: #000;
+      --header-color: #fff;
+      --chat-bg: #2c2c2c;
+      --chat-color: #fff;
+      --button-bg: #555;
+      --button-hover: #777;
+      --user-msg-color: #4ea8de;
+      --ai-msg-color: #73d13d;
+      --timestamp-color: #bbb;
+      --footer-color: #ccc;
+      --highlight-color: #665c54;
+    }
+    body {
+      background: var(--background-color);
+      color: var(--chat-color);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 0;
+      transition: background 0.3s, color 0.3s;
+    }
+    header {
+      background-color: var(--header-bg);
+      color: var(--header-color);
+      width: 100%;
+      padding: 1em;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    #fastaiLogo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+    #chat-container {
+      margin: 20px;
+      width: 90%;
+      max-width: 600px;
+      background: var(--chat-bg);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      position: relative;
+      transition: font-size 0.3s;
+    }
+    #output {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+      border-radius: 4px;
+      background: var(--chat-bg);
+    }
+    input[type="text"] {
+      width: 50%;
+      padding: 10px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      background: var(--button-bg);
+      color: var(--header-color);
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: var(--button-hover);
+    }
+    .message {
+      margin: 5px 0;
+      padding: 5px;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+      cursor: pointer;
+    }
+    .user-message {
+      color: var(--user-msg-color);
+    }
+    .ai-message {
+      color: var(--ai-msg-color);
+    }
+    .timestamp {
+      font-size: 0.8em;
+      color: var(--timestamp-color);
+      margin-left: 10px;
+    }
+    .highlight {
+      background-color: var(--highlight-color);
+    }
+    footer {
+      width: 100%;
+      text-align: center;
+      padding: 10px;
+      font-size: 0.9em;
+      color: var(--footer-color);
+    }
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+    #listeningIndicator {
+      font-size: 0.9em;
+      color: var(--header-bg);
+      margin-top: 5px;
+      display: none;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    /* Confetti styling */
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background-color: red;
+      top: -10px;
+      opacity: 0.8;
+      pointer-events: none;
+      animation: fall 3s linear forwards;
+      z-index: 9999;
+    }
+    @keyframes fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+    /* Style untuk color picker (hidden by default) */
+    #colorPicker {
+      display: none;
+    }
+    /* Style untuk Theme Selector */
+    #themeSelector {
+      padding: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      background: var(--button-bg);
+      color: var(--header-color);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://via.placeholder.com/50" alt="Fastai Logo" id="fastaiLogo">
+    <h1>GG Model 4.0 - Fastai (Anniversary 2 Tahun)</h1>
+  </header>
+  <div id="chat-container">
+    <div class="button-group">
+      <input type="text" id="userInput" placeholder="Tulis pesan..." onkeydown="handleKeyDown(event)">
+      <button onclick="sendMessage()">Kirim</button>
+      <button onclick="voiceInput()">Voice Input</button>
+      <button onclick="clearChat()">Clear Chat</button>
+      <button onclick="clearHistory()">Clear History</button>
+      <button onclick="resetConversation()">Reset Conversation</button>
+      <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
+      <button onclick="downloadChat()">Download Chat</button>
+      <button onclick="copyChat()">Copy Chat</button>
+      <button onclick="launchConfetti()">Celebrate</button>
+      <button onclick="searchChat()">Search Chat</button>
+      <button onclick="clearSearch()">Clear Search</button>
+      <button onclick="showStats()">Show Stats</button>
+      <button onclick="exportChatJSON()">Export JSON</button>
+      <button onclick="toggleAutoScroll()">Toggle Auto-scroll</button>
+      <button onclick="showInsights()">Show Insights</button>
+      <button onclick="downloadChatHTML()">Download HTML</button>
+      <button onclick="printChat()">Print Chat</button>
+      <button onclick="changeFontSize()">Change Font Size</button>
+      <button onclick="chooseBackgroundColor()">Choose Background Color</button>
+      <button onclick="exportChatCSV()">Export CSV</button>
+      <button onclick="editLastMessage()">Edit Last Message</button>
+      <!-- Fitur tambahan: Theme Selector dan Help Modal -->
+      <select id="themeSelector" onchange="changeTheme(this.value)">
+        <option value="default">Default</option>
+        <option value="ocean">Ocean</option>
+        <option value="forest">Forest</option>
+        <option value="sunset">Sunset</option>
+      </select>
+      <button onclick="openHelpModal()">Help</button>
+    </div>
+    <div id="listeningIndicator">Listening...</div>
+    <div id="output"></div>
+  </div>
+  <footer>
+    Credits: Hack dev real 12@ww
+  </footer>
+
+  <!-- Help Modal -->
+  <div id="helpModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); align-items:center; justify-content:center;">
+    <div style="background:#fff; padding:20px; border-radius:8px; max-width:500px; width:90%; position:relative;">
+      <h2>Fitur Fastai</h2>
+      <ul>
+        <li>Voice Input: Gunakan suara untuk mengirim pesan.</li>
+        <li>Edit Last Message: Edit pesan terakhir yang kamu kirim.</li>
+        <li>Export CSV/JSON/HTML: Ekspor riwayat chat dalam format berbeda.</li>
+        <li>Print Chat: Cetak tampilan chat.</li>
+        <li>Theme Selector: Pilih tema tampilan (Default, Ocean, Forest, Sunset).</li>
+        <li>Change Font Size & Choose Background Color: Sesuaikan tampilan chat sesuai keinginanmu.</li>
+        <li>Search Chat & Clear Search: Cari pesan berdasarkan kata kunci dan bersihkan highlight-nya.</li>
+        <li>Show Stats & Show Insights: Tampilkan statistik dan insight chat.</li>
+        <li>Toggle Auto-scroll, Clear/Reset Conversation, Toggle Dark Mode, Download Chat, Copy Chat.</li>
+        <li>Delete Individual Message: Hapus pesan individual dengan double-click.</li>
+      </ul>
+      <button onclick="closeHelpModal()" style="position:absolute; top:10px; right:10px;">X</button>
+    </div>
+  </div>
+
+  <script>
+    // Variabel global untuk auto-scroll
+    let autoScrollEnabled = true;
+    let editingElement = null;
+    let editMode = false;
+
+    // Muat chat dan setting pengguna dari localStorage saat halaman dimuat
+    document.addEventListener("DOMContentLoaded", function() {
+      const savedChat = localStorage.getItem("chatHistory");
+      if (savedChat) {
+        document.getElementById("output").innerHTML = savedChat;
+      }
+      const bgColor = localStorage.getItem("bgColor");
+      if (bgColor) {
+        document.body.style.backgroundColor = bgColor;
+      }
+      const fontSize = localStorage.getItem("fontSize");
+      if (fontSize) {
+        document.getElementById("chat-container").style.fontSize = fontSize;
+      }
+    });
+
+    // Fungsi untuk mengubah tema berdasarkan pilihan
+    function changeTheme(theme) {
+      document.body.classList.remove("theme-ocean", "theme-forest", "theme-sunset");
+      if (theme === "ocean") {
+        document.body.classList.add("theme-ocean");
+      } else if (theme === "forest") {
+        document.body.classList.add("theme-forest");
+      } else if (theme === "sunset") {
+        document.body.classList.add("theme-sunset");
+      }
+      localStorage.setItem("theme", theme);
+    }
+
+    // Buka Help Modal
+    function openHelpModal() {
+      document.getElementById("helpModal").style.display = "flex";
+    }
+    // Tutup Help Modal
+    function closeHelpModal() {
+      document.getElementById("helpModal").style.display = "none";
+    }
+
+    // Fungsi untuk memilih background color menggunakan color picker
+    function chooseBackgroundColor() {
+      document.getElementById("colorPicker").click();
+    }
+    function setBackgroundColor(color) {
+      document.body.style.backgroundColor = color;
+      localStorage.setItem("bgColor", color);
+    }
+
+    // Kirim pesan dengan Enter
+    function handleKeyDown(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        sendMessage();
+      }
+    }
+
+    // Membuat elemen pesan dan tambahkan delete dengan double-click
+    function createMessageElement(sender, message, className) {
+      const p = document.createElement('p');
+      p.className = 'message ' + className;
+      const timestamp = new Date().toLocaleString();
+      p.innerHTML = `<strong>${sender}:</strong> ${message} <span class="timestamp">${timestamp}</span>`;
+      p.ondblclick = function() {
+        if (confirm("Hapus pesan ini?")) {
+          p.remove();
+          saveChat();
+        }
+      };
+      return p;
+    }
+
+    // Simpan chat ke localStorage
+    function saveChat() {
+      const chatContent = document.getElementById("output").innerHTML;
+      localStorage.setItem("chatHistory", chatContent);
+    }
+
+    // Fungsi untuk mengirim pesan dan menampilkan respons AI atau mengedit pesan terakhir jika dalam mode edit
+    function sendMessage() {
+      const inputField = document.getElementById('userInput');
+      let input = inputField.value;
+      if (input.trim() === '') return;
+      input = analyzeAndCorrectMessage(input);
+      const outputDiv = document.getElementById('output');
+      if (editMode && editingElement) {
+        editingElement.innerHTML = `<strong>Kamu:</strong> ${document.getElementById("userInput").value} <span class="timestamp">${new Date().toLocaleString()}</span>`;
+        editMode = false;
+        editingElement = null;
+        document.getElementById("editLastBtn").innerText = "Edit Last Message";
+        saveChat();
+      } else {
+        outputDiv.appendChild(createMessageElement("Kamu", input, "user-message"));
+        displayTypingIndicator(() => {
+          const aiResponse = generateResponse(input);
+          addAIMessage(aiResponse);
+        });
+      }
+      inputField.value = '';
+      if (autoScrollEnabled) outputDiv.scrollTop = outputDiv.scrollHeight;
+      saveChat();
+    }
+
+    // Tampilkan indikator "Fastai is typing..." selama 1 detik, lalu callback
+    function displayTypingIndicator(callback) {
+      const outputDiv = document.getElementById('output');
+      const typingIndicator = createMessageElement("Fastai", "Fastai is typing...", "ai-message");
+      outputDiv.appendChild(typingIndicator);
+      if (autoScrollEnabled) outputDiv.scrollTop = outputDiv.scrollHeight;
+      saveChat();
+      setTimeout(() => {
+        outputDiv.removeChild(typingIndicator);
+        callback();
+        playNotificationSound();
+        if (autoScrollEnabled) outputDiv.scrollTop = outputDiv.scrollHeight;
+        saveChat();
+      }, 1000);
+    }
+
+    // Tambahkan pesan AI ke output
+    function addAIMessage(message) {
+      const outputDiv = document.getElementById('output');
+      outputDiv.appendChild(createMessageElement("Fastai", message, "ai-message"));
+    }
+
+    // Fungsi Clear Chat dan Clear History
+    function clearChat() {
+      document.getElementById('output').innerHTML = '';
+      localStorage.removeItem("chatHistory");
+    }
+    function clearHistory() {
+      clearChat();
+    }
+    function resetConversation() {
+      if (confirm("Apakah kamu yakin ingin mereset percakapan?")) {
+        clearHistory();
+        alert("Percakapan telah direset.");
+      }
+    }
+
+    // Toggle Dark Mode
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    // Download Chat sebagai file teks
+    function downloadChat() {
+      const chatContent = document.getElementById('output').innerText;
+      const blob = new Blob([chatContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'chat.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Salin Chat ke Clipboard
+    function copyChat() {
+      const chatContent = document.getElementById('output').innerText;
+      navigator.clipboard.writeText(chatContent).then(() => {
+        alert("Chat berhasil disalin!");
+      }).catch(() => {
+        alert("Gagal menyalin chat.");
+      });
+    }
+
+    // Voice Input
+    function voiceInput() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert("Voice input tidak didukung oleh browser ini.");
+        return;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.lang = "id-ID";
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+      const indicator = document.getElementById("listeningIndicator");
+      indicator.style.display = "block";
+      recognition.start();
+      recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript;
+        document.getElementById('userInput').value = transcript;
+        indicator.style.display = "none";
+      };
+      recognition.onerror = function(event) {
+        console.error("Error pada voice recognition: ", event.error);
+        indicator.style.display = "none";
+      };
+    }
+
+    // Notifikasi Suara
+    function playNotificationSound() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(440, audioCtx.currentTime);
+        oscillator.start();
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.3);
+        oscillator.stop(audioCtx.currentTime + 0.3);
+      } catch(e) {
+        console.log("AudioContext tidak didukung.");
+      }
+    }
+
+    // Analisis dan Koreksi Typo
+    function analyzeAndCorrectMessage(message) {
+      message = message.toLowerCase().trim();
+      const corrections = {
+        "haai": "hai",
+        "haloo": "halo",
+        "helo": "halo",
+        "helloo": "halo",
+        "terima kssih": "terima kasih",
+        "siapa kamtu": "siapa kamu",
+        "nama kammu": "nama kamu",
+        "ap kabar": "apa kabar"
+      };
+      for (let typo in corrections) {
+        if (message.includes(typo)) {
+          message = message.replace(new RegExp(typo, 'g'), corrections[typo]);
+        }
+      }
+      return message;
+    }
+
+    // Menghasilkan Respons AI
+    function generateResponse(message) {
+      if(message.includes("hai") || message.includes("halo")) {
+        return "Halo! Ada yang bisa saya bantu?";
+      } else if(message.includes("nama kamu")) {
+        return "Saya adalah Fastai, versi 2.7 (Anniversary 3 Bulan).";
+      } else if(message.includes("siapa kamu")) {
+        return "Saya adalah Fastai, aplikasi AI sederhana versi 2.7 (Anniversary 3 Bulan).";
+      } else if(message.includes("terima kasih") || message.includes("makasih")) {
+        return "Sama-sama! Senang bisa membantu.";
+      } else if(message.includes("help") || message.includes("bantuan")) {
+        return "Coba tanyakan 'waktu', 'motivasi', 'joke', 'anniversary', 'rating', atau 'feedback'!";
+      } else if(message.includes("selamat pagi")) {
+        return "Selamat pagi! Semoga harimu menyenangkan.";
+      } else if(message.includes("gg mode")) {
+        return "GG Mode diaktifkan! Semangat dan terus berkarya!";
+      } else if(message.includes("motivasi")) {
+        return "Ingat, setiap kegagalan adalah langkah menuju keberhasilan!";
+      } else if(message.includes("bye") || message.includes("goodbye")) {
+        return "Sampai jumpa! Terima kasih telah menggunakan Fastai.";
+      } else if(message.includes("apa kabar")) {
+        return "Saya baik, terima kasih! Bagaimana denganmu?";
+      } else if(message.includes("joke")) {
+        const jokes = [
+          "Kenapa ayam menyeberang jalan? Untuk sampai ke sisi lain!",
+          "Hidup itu seperti kopi, pahit tapi nikmat!"
+        ];
+        return jokes[Math.floor(Math.random() * jokes.length)];
+      } else if(message.includes("anniversary")) {
+        return "Selamat ulang tahun 3 bulan untuk Fastai! Terima kasih telah bersama kami.";
+      } else if(message.includes("berapa umur")) {
+        return "Sebagai AI, saya tidak memiliki umur layaknya manusia. Tapi saya terus 'berkembang' setiap hari!";
+      } else if(message.includes("latih") || message.includes("belajar")) {
+        return "Saya terus belajar dan berlatih agar dapat memberikan jawaban yang lebih baik untukmu.";
+      } else if(message.includes("rating") || message.includes("feedback")) {
+        return "Saya selalu berusaha memberikan yang terbaik! Masukan Anda sangat berarti bagi saya.";
+      } else if(message.includes("waktu")) {
+        return "Saat ini waktu: " + new Date().toLocaleTimeString();
+      } else if(message.includes("cuaca") || message.includes("berita")) {
+        return "Fitur cuaca dan berita sedang dalam pengembangan, mohon tunggu update selanjutnya.";
+      } else {
+        return "Maaf, saya tidak mengerti maksudmu. Coba tanyakan hal lain atau periksa ejaan pesanmu.";
+      }
+    }
+
+    // Fungsi untuk meluncurkan animasi confetti (celebration)
+    function launchConfetti() {
+      const colors = ['#FFC107', '#FF5722', '#4CAF50', '#2196F3', '#9C27B0'];
+      const confettiCount = 100;
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.left = Math.random() * 100 + 'vw';
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+        setTimeout(() => {
+          confetti.remove();
+        }, 3000);
+      }
+      alert("Selamat Ulang Tahun 3 Bulan untuk Fastai! Rayakan momen spesial ini!");
+    }
+
+    // Fungsi Search Chat: Cari pesan dan beri highlight
+    function searchChat() {
+      const keyword = prompt("Masukkan kata kunci untuk mencari pesan:");
+      if (!keyword) return;
+      const messages = document.querySelectorAll("#output .message");
+      messages.forEach(msg => {
+        msg.classList.remove("highlight");
+        if (msg.textContent.toLowerCase().includes(keyword.toLowerCase())) {
+          msg.classList.add("highlight");
+        }
+      });
+    }
+
+    // Fungsi Clear Search
+    function clearSearch() {
+      const messages = document.querySelectorAll("#output .message");
+      messages.forEach(msg => {
+        msg.classList.remove("highlight");
+      });
+    }
+
+    // Fitur: Tampilkan Statistik Chat
+    function showStats() {
+      const userMessages = document.querySelectorAll("#output .user-message").length;
+      const aiMessages = document.querySelectorAll("#output .ai-message").length;
+      const totalMessages = userMessages + aiMessages;
+      alert(`Statistik Chat:
+Total pesan: ${totalMessages}
+Pesan pengguna: ${userMessages}
+Pesan Fastai: ${aiMessages}`);
+    }
+
+    // Fitur: Ekspor Chat dalam format JSON
+    function exportChatJSON() {
+      const messages = [];
+      document.querySelectorAll("#output .message").forEach(msg => {
+        const text = msg.textContent.replace(/\d{1,2}\/\d{1,2}\/\d{4}.*, .*/, "").trim();
+        messages.push(text);
+      });
+      const dataStr = JSON.stringify(messages, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "chat.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Fitur: Toggle Auto-scroll
+    function toggleAutoScroll() {
+      autoScrollEnabled = !autoScrollEnabled;
+      alert(`Auto-scroll ${autoScrollEnabled ? "diaktifkan" : "dinonaktifkan"}.`);
+    }
+
+    // Fitur: Tampilkan Chat Insights (advanced)
+    function showInsights() {
+      const userMsgs = document.querySelectorAll("#output .user-message");
+      const aiMsgs = document.querySelectorAll("#output .ai-message");
+      let totalUserLength = 0;
+      userMsgs.forEach(msg => {
+        const text = msg.textContent.replace("Kamu:", "").replace(/\d{1,2}\/\d{1,2}\/\d{4}.*, .*/, "").trim();
+        totalUserLength += text.length;
+      });
+      let totalAiLength = 0;
+      aiMsgs.forEach(msg => {
+        const text = msg.textContent.replace("Fastai:", "").replace(/\d{1,2}\/\d{1,2}\/\d{4}.*, .*/, "").trim();
+        totalAiLength += text.length;
+      });
+      const avgUserLength = userMsgs.length ? (totalUserLength / userMsgs.length).toFixed(2) : 0;
+      const avgAiLength = aiMsgs.length ? (totalAiLength / aiMsgs.length).toFixed(2) : 0;
+      // Tambahan: Pesan terpanjang dan terpendek
+      let longest = "";
+      let shortest = "";
+      userMsgs.forEach(msg => {
+        const text = msg.textContent.replace("Kamu:", "").replace(/\d{1,2}\/\d{1,2}\/\d{4}.*, .*/, "").trim();
+        if (!longest || text.length > longest.length) longest = text;
+        if (!shortest || text.length < shortest.length) shortest = text;
+      });
+      alert(`Chat Insights:
+Total Pesan: ${userMsgs.length + aiMsgs.length}
+Pesan Pengguna: ${userMsgs.length}
+Pesan Fastai: ${aiMsgs.length}
+Rata-rata panjang pesan pengguna: ${avgUserLength} karakter
+Rata-rata panjang pesan Fastai: ${avgAiLength} karakter
+Pesan terpanjang: ${longest}
+Pesan terpendek: ${shortest}`);
+    }
+
+    // Fitur: Ekspor Chat sebagai HTML
+    function downloadChatHTML() {
+      const chatHTML = document.getElementById("output").innerHTML;
+      const blob = new Blob([chatHTML], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "chat.html";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Fitur: Print Chat
+    function printChat() {
+      window.print();
+    }
+
+    // Fitur: Change Font Size
+    function changeFontSize() {
+      const size = prompt("Masukkan ukuran font untuk chat container (misal: 16px):");
+      if (size) {
+        document.getElementById("chat-container").style.fontSize = size;
+        localStorage.setItem("fontSize", size);
+      }
+    }
+
+    // Fitur: Edit Last Message (hanya untuk pesan pengguna)
+    function editLastMessage() {
+      const userMessages = document.querySelectorAll("#output .user-message");
+      if (userMessages.length === 0) {
+        alert("Tidak ada pesan pengguna untuk diedit.");
+        return;
+      }
+      const lastMessage = userMessages[userMessages.length - 1];
+      const originalText = lastMessage.textContent.replace("Kamu:", "").replace(/\d{1,2}\/\d{1,2}\/\d{4}.*, .*/, "").trim();
+      if (editMode && editingElement) {
+        editingElement.innerHTML = `<strong>Kamu:</strong> ${document.getElementById("userInput").value} <span class="timestamp">${new Date().toLocaleString()}</span>`;
+        editMode = false;
+        editingElement = null;
+        document.getElementById("editLastBtn").innerText = "Edit Last Message";
+        saveChat();
+      } else {
+        document.getElementById("userInput").value = originalText;
+        editMode = true;
+        editingElement = lastMessage;
+        document.getElementById("editLastBtn").innerText = "Save Edited Message";
+      }
+    }
+
+    // Fitur: Export Chat sebagai CSV
+    function exportChatCSV() {
+      const messages = [];
+      document.querySelectorAll("#output .message").forEach(msg => {
+        let text = msg.textContent.replace(/\d{1,2}\/\d{1,2}\/\d{4}.*, .*/, "").trim();
+        text = '"' + text.replace(/"/g, '""') + '"';
+        messages.push(text);
+      });
+      const csvContent = messages.join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "chat.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
