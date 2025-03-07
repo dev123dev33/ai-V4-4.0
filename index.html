@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GG Model 4.0 - Fastai (Anniversary 2 Tahun)</title>
+  <title>GG Model 4.1 - Fastai (Anniversary 2 Tahun)</title>
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap" rel="stylesheet">
   <style>
     /* Gunakan font Roboto */
@@ -24,52 +24,6 @@
       --footer-color: #555;
       --highlight-color: #ffff99;
     }
-    /* Tema Ocean */
-    .theme-ocean {
-      --background-color: #e0f7fa;
-      --header-bg: #006064;
-      --header-color: #e0f7fa;
-      --chat-bg: #ffffff;
-      --chat-color: #006064;
-      --button-bg: #006064;
-      --button-hover: #004d40;
-      --user-msg-color: #00838f;
-      --ai-msg-color: #004d40;
-      --timestamp-color: #00796b;
-      --footer-color: #006064;
-      --highlight-color: #b2ebf2;
-    }
-    /* Tema Forest */
-    .theme-forest {
-      --background-color: #e8f5e9;
-      --header-bg: #2e7d32;
-      --header-color: #e8f5e9;
-      --chat-bg: #ffffff;
-      --chat-color: #2e7d32;
-      --button-bg: #2e7d32;
-      --button-hover: #1b5e20;
-      --user-msg-color: #66bb6a;
-      --ai-msg-color: #1b5e20;
-      --timestamp-color: #388e3c;
-      --footer-color: #2e7d32;
-      --highlight-color: #c8e6c9;
-    }
-    /* Tema Sunset */
-    .theme-sunset {
-      --background-color: #fff3e0;
-      --header-bg: #e64a19;
-      --header-color: #fff3e0;
-      --chat-bg: #ffffff;
-      --chat-color: #e64a19;
-      --button-bg: #e64a19;
-      --button-hover: #bf360c;
-      --user-msg-color: #ff7043;
-      --ai-msg-color: #bf360c;
-      --timestamp-color: #d84315;
-      --footer-color: #e64a19;
-      --highlight-color: #ffe0b2;
-    }
-    /* Mode Dark akan override variabel default */
     .dark-mode {
       --background-color: #1e1e1e;
       --header-bg: #000;
@@ -105,6 +59,7 @@
       justify-content: center;
       gap: 10px;
     }
+    /* Logo Fastai default */
     #fastaiLogo {
       width: 50px;
       height: 50px;
@@ -218,20 +173,12 @@
     #colorPicker {
       display: none;
     }
-    /* Style untuk Theme Selector */
-    #themeSelector {
-      padding: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      background: var(--button-bg);
-      color: var(--header-color);
-    }
   </style>
 </head>
 <body>
   <header>
     <img src="https://via.placeholder.com/50" alt="Fastai Logo" id="fastaiLogo">
-    <h1>GG Model 4.0 - Fastai (Anniversary 2 Tahun)</h1>
+    <h1>GG Model 4.1 - Fastai (Anniversary 2 Tahun)</h1>
   </header>
   <div id="chat-container">
     <div class="button-group">
@@ -256,15 +203,7 @@
       <button onclick="changeFontSize()">Change Font Size</button>
       <button onclick="chooseBackgroundColor()">Choose Background Color</button>
       <button onclick="exportChatCSV()">Export CSV</button>
-      <button onclick="editLastMessage()">Edit Last Message</button>
-      <!-- Fitur tambahan: Theme Selector dan Help Modal -->
-      <select id="themeSelector" onchange="changeTheme(this.value)">
-        <option value="default">Default</option>
-        <option value="ocean">Ocean</option>
-        <option value="forest">Forest</option>
-        <option value="sunset">Sunset</option>
-      </select>
-      <button onclick="openHelpModal()">Help</button>
+      <button onclick="editLastMessage()" id="editLastBtn">Edit Last Message</button>
     </div>
     <div id="listeningIndicator">Listening...</div>
     <div id="output"></div>
@@ -272,34 +211,17 @@
   <footer>
     Credits: Hack dev real 12@ww
   </footer>
-
-  <!-- Help Modal -->
-  <div id="helpModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); align-items:center; justify-content:center;">
-    <div style="background:#fff; padding:20px; border-radius:8px; max-width:500px; width:90%; position:relative;">
-      <h2>Fitur Fastai</h2>
-      <ul>
-        <li>Voice Input: Gunakan suara untuk mengirim pesan.</li>
-        <li>Edit Last Message: Edit pesan terakhir yang kamu kirim.</li>
-        <li>Export CSV/JSON/HTML: Ekspor riwayat chat dalam format berbeda.</li>
-        <li>Print Chat: Cetak tampilan chat.</li>
-        <li>Theme Selector: Pilih tema tampilan (Default, Ocean, Forest, Sunset).</li>
-        <li>Change Font Size & Choose Background Color: Sesuaikan tampilan chat sesuai keinginanmu.</li>
-        <li>Search Chat & Clear Search: Cari pesan berdasarkan kata kunci dan bersihkan highlight-nya.</li>
-        <li>Show Stats & Show Insights: Tampilkan statistik dan insight chat.</li>
-        <li>Toggle Auto-scroll, Clear/Reset Conversation, Toggle Dark Mode, Download Chat, Copy Chat.</li>
-        <li>Delete Individual Message: Hapus pesan individual dengan double-click.</li>
-      </ul>
-      <button onclick="closeHelpModal()" style="position:absolute; top:10px; right:10px;">X</button>
-    </div>
-  </div>
-
   <script>
-    // Variabel global untuk auto-scroll
+    // Variabel global untuk auto-scroll dan mode edit
     let autoScrollEnabled = true;
     let editingElement = null;
     let editMode = false;
 
-    // Muat chat dan setting pengguna dari localStorage saat halaman dimuat
+    // Variabel global untuk versi dan anniversary (update otomatis pada respons)
+    const currentVersion = "4.1";
+    const currentAnniversary = "2 Tahun";
+
+    // Muat chat dan setting pengguna dari localStorage
     document.addEventListener("DOMContentLoaded", function() {
       const savedChat = localStorage.getItem("chatHistory");
       if (savedChat) {
@@ -315,38 +237,17 @@
       }
     });
 
-    // Fungsi untuk mengubah tema berdasarkan pilihan
-    function changeTheme(theme) {
-      document.body.classList.remove("theme-ocean", "theme-forest", "theme-sunset");
-      if (theme === "ocean") {
-        document.body.classList.add("theme-ocean");
-      } else if (theme === "forest") {
-        document.body.classList.add("theme-forest");
-      } else if (theme === "sunset") {
-        document.body.classList.add("theme-sunset");
-      }
-      localStorage.setItem("theme", theme);
-    }
-
-    // Buka Help Modal
-    function openHelpModal() {
-      document.getElementById("helpModal").style.display = "flex";
-    }
-    // Tutup Help Modal
-    function closeHelpModal() {
-      document.getElementById("helpModal").style.display = "none";
-    }
-
     // Fungsi untuk memilih background color menggunakan color picker
     function chooseBackgroundColor() {
       document.getElementById("colorPicker").click();
     }
+    // Set background color dan simpan ke localStorage
     function setBackgroundColor(color) {
       document.body.style.backgroundColor = color;
       localStorage.setItem("bgColor", color);
     }
 
-    // Kirim pesan dengan Enter
+    // Fungsi untuk menangani Enter key
     function handleKeyDown(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -354,7 +255,8 @@
       }
     }
 
-    // Membuat elemen pesan dan tambahkan delete dengan double-click
+    // Fungsi pembantu untuk membuat elemen pesan dengan animasi fade-in
+    // Dan tambahkan delete dengan double-click
     function createMessageElement(sender, message, className) {
       const p = document.createElement('p');
       p.className = 'message ' + className;
@@ -375,7 +277,7 @@
       localStorage.setItem("chatHistory", chatContent);
     }
 
-    // Fungsi untuk mengirim pesan dan menampilkan respons AI atau mengedit pesan terakhir jika dalam mode edit
+    // Fungsi untuk mengirim pesan
     function sendMessage() {
       const inputField = document.getElementById('userInput');
       let input = inputField.value;
@@ -383,6 +285,7 @@
       input = analyzeAndCorrectMessage(input);
       const outputDiv = document.getElementById('output');
       if (editMode && editingElement) {
+        // Jika dalam mode edit, perbarui pesan terakhir
         editingElement.innerHTML = `<strong>Kamu:</strong> ${document.getElementById("userInput").value} <span class="timestamp">${new Date().toLocaleString()}</span>`;
         editMode = false;
         editingElement = null;
@@ -400,7 +303,7 @@
       saveChat();
     }
 
-    // Tampilkan indikator "Fastai is typing..." selama 1 detik, lalu callback
+    // Tampilkan indikator "Fastai is typing..." dan jalankan callback setelah 1 detik
     function displayTypingIndicator(callback) {
       const outputDiv = document.getElementById('output');
       const typingIndicator = createMessageElement("Fastai", "Fastai is typing...", "ai-message");
@@ -442,7 +345,7 @@
       document.body.classList.toggle('dark-mode');
     }
 
-    // Download Chat sebagai file teks
+    // Unduh chat sebagai file teks
     function downloadChat() {
       const chatContent = document.getElementById('output').innerText;
       const blob = new Blob([chatContent], { type: 'text/plain' });
@@ -454,7 +357,7 @@
       URL.revokeObjectURL(url);
     }
 
-    // Salin Chat ke Clipboard
+    // Salin chat ke clipboard
     function copyChat() {
       const chatContent = document.getElementById('output').innerText;
       navigator.clipboard.writeText(chatContent).then(() => {
@@ -489,7 +392,7 @@
       };
     }
 
-    // Notifikasi Suara
+    // Notifikasi suara
     function playNotificationSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -507,7 +410,7 @@
       }
     }
 
-    // Analisis dan Koreksi Typo
+    // Analisis dan koreksi typo
     function analyzeAndCorrectMessage(message) {
       message = message.toLowerCase().trim();
       const corrections = {
@@ -528,14 +431,20 @@
       return message;
     }
 
-    // Menghasilkan Respons AI
+    // Variabel untuk versi dan anniversary (update otomatis di respons)
+    const currentVersion = "4.1";
+    const currentAnniversary = "2 Tahun";
+
+    // Menghasilkan respons AI dengan update otomatis untuk pertanyaan "siapa kamu", "nama kamu", dan "celebrate"
     function generateResponse(message) {
       if(message.includes("hai") || message.includes("halo")) {
         return "Halo! Ada yang bisa saya bantu?";
       } else if(message.includes("nama kamu")) {
-        return "Saya adalah Fastai, versi 4.0 (Anniversary 2 Tahun ).";
+        return `Saya adalah Fastai, versi ${currentVersion} (Anniversary ${currentAnniversary}).`;
       } else if(message.includes("siapa kamu")) {
-        return "Saya adalah Fastai, aplikasi AI sederhana versi 4.0 (Anniversary 2 Tahun ).";
+        return `Saya adalah Fastai, aplikasi AI sederhana versi ${currentVersion} (Anniversary ${currentAnniversary}).`;
+      } else if(message.includes("celebrate")) {
+        return `Selamat ulang tahun ${currentAnniversary} untuk Fastai! Terima kasih telah bersama kami.`;
       } else if(message.includes("terima kasih") || message.includes("makasih")) {
         return "Sama-sama! Senang bisa membantu.";
       } else if(message.includes("help") || message.includes("bantuan")) {
@@ -557,7 +466,7 @@
         ];
         return jokes[Math.floor(Math.random() * jokes.length)];
       } else if(message.includes("anniversary")) {
-        return "Selamat ulang tahun 3 bulan untuk Fastai! Terima kasih telah bersama kami.";
+        return `Selamat ulang tahun ${currentAnniversary} untuk Fastai! Terima kasih telah bersama kami.`;
       } else if(message.includes("berapa umur")) {
         return "Sebagai AI, saya tidak memiliki umur layaknya manusia. Tapi saya terus 'berkembang' setiap hari!";
       } else if(message.includes("latih") || message.includes("belajar")) {
@@ -588,7 +497,7 @@
           confetti.remove();
         }, 3000);
       }
-      alert("Selamat Ulang Tahun 3 Bulan untuk Fastai! Rayakan momen spesial ini!");
+      alert(`Selamat ulang tahun ${currentAnniversary} untuk Fastai! Terima kasih telah bersama kami.`);
     }
 
     // Fungsi Search Chat: Cari pesan dan beri highlight
@@ -604,7 +513,7 @@
       });
     }
 
-    // Fungsi Clear Search
+    // Fungsi untuk menghapus highlight pencarian
     function clearSearch() {
       const messages = document.querySelectorAll("#output .message");
       messages.forEach(msg => {
@@ -662,22 +571,12 @@ Pesan Fastai: ${aiMessages}`);
       });
       const avgUserLength = userMsgs.length ? (totalUserLength / userMsgs.length).toFixed(2) : 0;
       const avgAiLength = aiMsgs.length ? (totalAiLength / aiMsgs.length).toFixed(2) : 0;
-      // Tambahan: Pesan terpanjang dan terpendek
-      let longest = "";
-      let shortest = "";
-      userMsgs.forEach(msg => {
-        const text = msg.textContent.replace("Kamu:", "").replace(/\d{1,2}\/\d{1,2}\/\d{4}.*, .*/, "").trim();
-        if (!longest || text.length > longest.length) longest = text;
-        if (!shortest || text.length < shortest.length) shortest = text;
-      });
       alert(`Chat Insights:
 Total Pesan: ${userMsgs.length + aiMsgs.length}
 Pesan Pengguna: ${userMsgs.length}
 Pesan Fastai: ${aiMsgs.length}
 Rata-rata panjang pesan pengguna: ${avgUserLength} karakter
-Rata-rata panjang pesan Fastai: ${avgAiLength} karakter
-Pesan terpanjang: ${longest}
-Pesan terpendek: ${shortest}`);
+Rata-rata panjang pesan Fastai: ${avgAiLength} karakter`);
     }
 
     // Fitur: Ekspor Chat sebagai HTML
